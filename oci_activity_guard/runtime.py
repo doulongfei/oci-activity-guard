@@ -38,6 +38,9 @@ def health(config):
             with opener.open(url, timeout=2) as response:
                 if response.status != 200:
                     failures.append(f'http-probe-{index}-status')
+        except urllib.error.HTTPError as error:
+            error.close()
+            failures.append(f'http-probe-{index}-failed')
         except (OSError, urllib.error.URLError, ValueError):
             failures.append(f'http-probe-{index}-failed')
     return failures
