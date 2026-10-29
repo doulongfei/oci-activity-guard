@@ -59,7 +59,8 @@ def worker_command(config, cores, seconds):
     if type(seconds) is not int or not 60 <= seconds <= config.slot_seconds:
         raise ValueError('Unsafe worker duration')
     properties = resource_properties(config, cores)
-    properties['RuntimeMaxSec'] = f'{seconds}s'
+    # stress-ng 自行到期后仍需回收子进程；独立保险留十秒，日预算已预留收尾。
+    properties['RuntimeMaxSec'] = f'{seconds+10}s'
     command = ['/usr/bin/systemd-run', '--quiet', '--wait', '--collect', '--unit='+WORKER, '--service-type=exec']
     for key, value in properties.items():
         command.append(f'--property={key}={value}')

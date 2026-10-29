@@ -201,7 +201,8 @@ class PolicyTests(unittest.TestCase):
     def test_worker_is_unprivileged_memory_bounded_and_network_isolated(self):
         command = worker_command(Config(), 4, 60)
         for value in ['--property=DynamicUser=yes', '--property=PrivateNetwork=yes', '--property=MemoryMax=256M',
-                      '--property=MemorySwapMax=0', '--property=CPUQuota=140%', '--property=KillMode=control-group']:
+                      '--property=MemorySwapMax=0', '--property=CPUQuota=140%', '--property=KillMode=control-group',
+                      '--property=RuntimeMaxSec=70s']:
             self.assertIn(value, command)
         self.assertEqual(command[-3:], ['--timeout', '60s', '--metrics-brief'])
 

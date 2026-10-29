@@ -67,4 +67,4 @@ def resource_properties(config, cores):
             'ProtectSystem': 'strict', 'ProtectHome': 'yes', 'ProtectKernelTunables': 'yes',
             'ProtectControlGroups': 'yes', 'RestrictSUIDSGID': 'yes', 'CapabilityBoundingSet': '',
             'BindsTo': 'oci-activity-monitor.service', 'After': 'oci-activity-monitor.service',
-            'RuntimeMaxSec': f'{config.slot_seconds}s', 'TimeoutStopSec': '10s', 'KillMode': 'control-group'}
+            'RuntimeMaxSec': f'{config.slot_seconds+10}s', 'TimeoutStopSec': '10s', 'KillMode': 'control-group'}
