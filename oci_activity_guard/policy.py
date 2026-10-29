@@ -45,12 +45,12 @@ def decide(config, now, initialized_at, paused, live, day, week, budget_used, ca
         return Decision(True, 'calibration', calibration)
     if now-initialized_at < config.warmup_hours*3600:
         return Decision(False, 'initial-observation')
-    if day['eligible_seconds'] >= config.daily_target_seconds:
+    if not compensation and day['eligible_seconds'] >= config.daily_target_seconds:
         return Decision(False, 'daily-target-met')
     if compensation:
-        if week['coverage_ratio'] < .95:
-            return Decision(False, 'week-history-incomplete')
-        if day['eligible_seconds'] >= 7200 or week['eligible_ratio'] >= .08:
+        day_deficit = day.get('coverage_ratio', 0) >= .95 and day['eligible_seconds'] < config.daily_target_seconds
+        week_deficit = week['coverage_ratio'] >= .95 and week['eligible_ratio'] < .08
+        if not day_deficit and not week_deficit:
             return Decision(False, 'compensation-not-needed')
         remaining = min(remaining, int(2160-compensation_used))
         if remaining < 60:

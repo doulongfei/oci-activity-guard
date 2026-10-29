@@ -154,7 +154,7 @@ class StoreTests(unittest.TestCase):
 class PolicyTests(unittest.TestCase):
     def decision(self, **changes):
         args = {'config': Config(), 'now': NOW, 'initialized_at': NOW-86400, 'paused': False, 'live': live(),
-                'day': {'eligible_seconds': 0}, 'week': {'eligible_ratio': 0, 'coverage_ratio': 1}, 'budget_used': 0}
+                'day': {'eligible_seconds': 0, 'coverage_ratio': 1}, 'week': {'eligible_ratio': 0, 'coverage_ratio': 1}, 'budget_used': 0}
         args.update(changes)
         return decide(**args)
 
@@ -192,11 +192,15 @@ class PolicyTests(unittest.TestCase):
         self.assertFalse(self.decision(calibration=60, live=live(memory_available=1)).run)
         with self.assertRaises(ValueError): self.decision(calibration=999999)
 
-    def test_compensation_requires_week_coverage_and_is_capped(self):
-        self.assertFalse(self.decision(compensation=True, week={'eligible_ratio': 0, 'coverage_ratio': .1}).run)
-        self.assertFalse(self.decision(compensation=True, week={'eligible_ratio': .1, 'coverage_ratio': 1}).run)
+    def test_compensation_requires_real_history_and_is_capped(self):
+        self.assertFalse(self.decision(compensation=True, day={'eligible_seconds': 0, 'coverage_ratio': .1}, week={'eligible_ratio': 0, 'coverage_ratio': .1}).run)
+        self.assertFalse(self.decision(compensation=True, day={'eligible_seconds': 8640, 'coverage_ratio': 1}, week={'eligible_ratio': .1, 'coverage_ratio': 1}).run)
         self.assertFalse(self.decision(compensation=True, compensation_used=2160).run)
         self.assertEqual(self.decision(compensation=True, compensation_used=2000).seconds, 160)
+
+    def test_compensation_repairs_sample_boundary_loss_even_with_healthy_week(self):
+        self.assertTrue(self.decision(compensation=True, day={'eligible_seconds': 7920, 'coverage_ratio': 1}, week={'eligible_ratio': .1, 'coverage_ratio': 1}).run)
+        self.assertTrue(self.decision(compensation=True, day={'eligible_seconds': 7920, 'coverage_ratio': 1}, week={'eligible_ratio': 0, 'coverage_ratio': .2}).run)
 
     def test_worker_is_unprivileged_memory_bounded_and_network_isolated(self):
         command = worker_command(Config(), 4, 60)
