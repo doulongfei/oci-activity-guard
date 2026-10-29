@@ -63,7 +63,7 @@ def resource_properties(config, cores):
         raise ValueError('Invalid online core count')
     return {'CPUQuota': f'{cores*config.worker_host_cap}%', 'CPUWeight': '1', 'MemoryMax': '256M',
             'MemorySwapMax': '0', 'TasksMax': '16', 'Nice': '19', 'CPUSchedulingPolicy': 'idle',
-            'DynamicUser': 'yes', 'NoNewPrivileges': 'yes', 'PrivateTmp': 'yes', 'PrivateNetwork': 'yes',
+            'DynamicUser': 'yes', 'NoNewPrivileges': 'yes', 'PrivateTmp': 'yes', 'PrivateNetwork': 'yes', 'WorkingDirectory': '/tmp',
             'ProtectSystem': 'strict', 'ProtectHome': 'yes', 'ProtectKernelTunables': 'yes',
             'ProtectControlGroups': 'yes', 'RestrictSUIDSGID': 'yes', 'CapabilityBoundingSet': '',
             'BindsTo': 'oci-activity-monitor.service', 'After': 'oci-activity-monitor.service',

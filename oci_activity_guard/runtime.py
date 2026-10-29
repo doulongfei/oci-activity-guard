@@ -67,7 +67,7 @@ def worker_command(config, cores, seconds):
     command = ['/usr/bin/systemd-run', '--quiet', '--wait', '--collect', '--unit='+WORKER, '--service-type=exec']
     for key, value in properties.items():
         command.append(f'--property={key}={value}')
-    return command + ['/usr/bin/stress-ng', '--cpu', str(cores), '--cpu-load', str(config.worker_cpu_load),
+    return command + ['/usr/bin/stress-ng', '--temp-path', '/tmp', '--cpu', str(cores), '--cpu-load', str(config.worker_cpu_load),
                       '--timeout', f'{seconds}s', '--metrics-brief']
 
 

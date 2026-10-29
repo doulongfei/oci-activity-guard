@@ -206,8 +206,9 @@ class PolicyTests(unittest.TestCase):
         command = worker_command(Config(), 4, 60)
         for value in ['--property=DynamicUser=yes', '--property=PrivateNetwork=yes', '--property=MemoryMax=256M',
                       '--property=MemorySwapMax=0', '--property=CPUQuota=140%', '--property=KillMode=control-group',
-                      '--property=RuntimeMaxSec=70s']:
+                      '--property=RuntimeMaxSec=70s', '--property=WorkingDirectory=/tmp']:
             self.assertIn(value, command)
+        self.assertEqual(command[command.index('--temp-path')+1], '/tmp')
         self.assertEqual(command[-3:], ['--timeout', '60s', '--metrics-brief'])
 
 
