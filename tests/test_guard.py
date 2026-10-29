@@ -213,6 +213,30 @@ class PolicyTests(unittest.TestCase):
 
 
 class RuntimeBoundaryTests(unittest.TestCase):
+    def test_zero_exit_cannot_fake_completed_duration_or_override_pause(self):
+        for paused, expected, exit_code in [(False, 'failed', 1), (True, 'interrupted', 0)]:
+            with self.subTest(paused=paused), tempfile.TemporaryDirectory() as directory:
+                store = Store(directory)
+                store.initialize(NOW-86400)
+                store.set('live', live())
+                class Process:
+                    returncode = 0
+                    def poll(self): return 0
+                def spawn(command):
+                    if paused: store.set('paused', True)
+                    return Process()
+                try:
+                    with patch('oci_activity_guard.runtime.time.time', return_value=NOW), \
+                         patch('oci_activity_guard.runtime.time.monotonic', return_value=1000), \
+                         patch('oci_activity_guard.runtime.worker_active', return_value=False), \
+                         patch('oci_activity_guard.runtime.health', return_value=[]), \
+                         patch('oci_activity_guard.runtime.read_point') as point, \
+                         patch('oci_activity_guard.runtime.subprocess.Popen', side_effect=spawn):
+                        point.return_value.cores = 4
+                        self.assertEqual(run(Config(), directory, threading.Event(), calibration=60), exit_code)
+                    self.assertEqual(store.recent_runs()[0]['result'], expected)
+                finally: store.close()
+
     def test_cleanup_does_not_kill_another_controller_worker(self):
         with tempfile.TemporaryDirectory() as directory:
             with (Path(directory)/'controller.lock').open('a') as lock:

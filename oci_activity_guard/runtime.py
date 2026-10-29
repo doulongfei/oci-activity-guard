@@ -204,8 +204,10 @@ def run(config, directory, stop, calibration=0, compensation=False):
         run_id = store.run_start(now, decision.seconds, bool(calibration), decision.reason)
         command = worker_command(config, cores, decision.seconds)
         LOG.info('Worker starting: cores=%s target_host_cpu=%s cap=%s', cores, config.worker_cpu_load, resource_properties(config, cores)['CPUQuota'])
+        started_monotonic = time.monotonic()
+        started_wall = time.time()
         process = subprocess.Popen(command)
-        deadline = time.monotonic()+decision.seconds+15
+        deadline = started_monotonic+decision.seconds+15
         while process.poll() is None and not stop.is_set():
             now = time.time()
             store.heartbeat(run_id, now)
@@ -231,17 +233,17 @@ def run(config, directory, stop, calibration=0, compensation=False):
                 break
             stop.wait(config.tick_seconds)
         else:
+            emergency = store.get('last_emergency', {})
             if stop.is_set():
                 result, reason = 'interrupted', 'controller-stopped'
-            elif process.returncode == 0:
+            elif store.get('paused'):
+                result, reason = 'interrupted', 'owner-paused'
+            elif emergency.get('at', 0) >= started_wall:
+                result, reason = 'interrupted', emergency['reason']
+            elif process.returncode == 0 and time.monotonic()-started_monotonic >= decision.seconds-2:
                 result, reason = 'completed', 'worker-exited-zero'
             else:
-                result, reason = 'failed', 'worker-exited-nonzero'
-                emergency = store.get('last_emergency', {})
-                if store.get('paused'):
-                    result, reason = 'interrupted', 'owner-paused'
-                elif emergency.get('at', 0) >= now:
-                    result, reason = 'interrupted', emergency['reason']
+                result, reason = 'failed', 'worker-ended-early' if process.returncode == 0 else 'worker-exited-nonzero'
         if process.poll() is None:
             result = 'interrupted'
             stop_worker()
