@@ -84,3 +84,5 @@ sudo systemctl stop oci-activity-guard.service oci-activity-monitor.service
 生产启用还需短时和完整窗口校准、业务响应检查；持续 24 小时与 7 天的观测只能随实际时间完成。程序不会重启或继续已经结束的其他 Agent，也不变更现有代理/流量限额。
 
 依据与参数说明见 [设计说明](docs/design.md)。本项目原创控制代码使用 MIT；外部 `stress-ng` 按其自身许可证独立分发，不内嵌其源码。
+
+首次 ARM64 节点部署、完整负载窗口与业务回归记录见 [部署验收](docs/deployment-acceptance-2026-10-29.md)。
