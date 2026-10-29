@@ -182,7 +182,7 @@ class PolicyTests(unittest.TestCase):
             self.assertEqual(self.decision(live=live(**changes)).reason, reason)
 
     def test_remaining_daily_budget_limits_run_and_calibration(self):
-        self.assertEqual(self.decision(budget_used=10700).seconds, 100)
+        self.assertEqual(self.decision(budget_used=10670).seconds, 100)
         self.assertFalse(self.decision(budget_used=10750).run)
         self.assertFalse(self.decision(budget_used=10700, calibration=720).run)
 

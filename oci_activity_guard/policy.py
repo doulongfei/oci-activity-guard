@@ -33,7 +33,8 @@ def decide(config, now, initialized_at, paused, live, day, week, budget_used, ca
         return Decision(False, 'business-unhealthy')
     if live['cpu'] >= config.cpu_threshold:
         return Decision(False, 'natural-workload-sufficient')
-    remaining = int(config.daily_max_seconds-budget_used)
+    # 给停止与控制器收尾预留 30 秒，不能把日预算全部交给计算进程。
+    remaining = int(config.daily_max_seconds-budget_used-30)
     if remaining < 60:
         return Decision(False, 'daily-budget-exhausted')
     if calibration:
@@ -66,4 +67,4 @@ def resource_properties(config, cores):
             'ProtectSystem': 'strict', 'ProtectHome': 'yes', 'ProtectKernelTunables': 'yes',
             'ProtectControlGroups': 'yes', 'RestrictSUIDSGID': 'yes', 'CapabilityBoundingSet': '',
             'BindsTo': 'oci-activity-monitor.service', 'After': 'oci-activity-monitor.service',
-            'RuntimeMaxSec': f'{config.slot_seconds+60}s', 'TimeoutStopSec': '10s', 'KillMode': 'control-group'}
+            'RuntimeMaxSec': f'{config.slot_seconds}s', 'TimeoutStopSec': '10s', 'KillMode': 'control-group'}
