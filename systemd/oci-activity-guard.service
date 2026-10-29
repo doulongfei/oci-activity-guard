@@ -1,0 +1,20 @@
+[Unit]
+Description=OCI bounded activity scheduling decision
+After=oci-activity-monitor.service
+Requires=oci-activity-monitor.service
+
+[Service]
+Type=exec
+WorkingDirectory=/opt/oci-activity-guard/current
+ExecStart=/usr/bin/python3 -m oci_activity_guard run
+ExecStopPost=/usr/bin/python3 -m oci_activity_guard cleanup
+UMask=0027
+Nice=10
+CPUQuota=5%
+MemoryMax=128M
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/oci-activity-guard
+TimeoutStopSec=30s

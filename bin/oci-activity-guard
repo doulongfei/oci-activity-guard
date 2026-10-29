@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+import sys
+
+sys.path.insert(0, '/opt/oci-activity-guard/current')
+from oci_activity_guard.cli import main
+
+raise SystemExit(main())

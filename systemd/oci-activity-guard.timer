@@ -1,0 +1,12 @@
+[Unit]
+Description=Hourly OCI activity check (two-hour base slots and bounded compensation)
+
+[Timer]
+OnCalendar=*-*-* *:00:00 UTC
+RandomizedDelaySec=30s
+AccuracySec=1s
+Persistent=true
+Unit=oci-activity-guard.service
+
+[Install]
+WantedBy=timers.target

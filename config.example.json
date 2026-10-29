@@ -1,0 +1,32 @@
+{
+  "tick_seconds": 10,
+  "sample_seconds": 60,
+  "warmup_hours": 24,
+  "cpu_threshold": 25,
+  "worker_cpu_load": 30,
+  "worker_host_cap": 35,
+  "slot_seconds": 720,
+  "daily_target_seconds": 8640,
+  "daily_max_seconds": 10800,
+  "cpu_stop_threshold": 60,
+  "memory_available_ratio": 0.2,
+  "memory_available_min_bytes": 2147483648,
+  "disk_free_min_bytes": 12884901888,
+  "memory_psi_full_limit": 1,
+  "steal_limit": 10,
+  "retention_days": 14,
+  "critical_units": [
+    "caddy.service",
+    "sing-box.service",
+    "frps.service",
+    "proxy-quota.service"
+  ],
+  "health_urls": [
+    "http://127.0.0.1:18101/",
+    "http://127.0.0.1:18102/",
+    "http://127.0.0.1:18103/health"
+  ],
+  "expected_cores": 4,
+  "expected_memory_gib": 24,
+  "account_type": "Free Tier"
+}
